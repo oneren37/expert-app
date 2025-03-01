@@ -31,3 +31,18 @@
 
 en:
   hello: "Hello world"
+  shared:
+    header:
+      logo_title: "Experteese in RoR"
+      home: "Home"
+      help: "Help"
+      sign_in: "Sign in"
+      sign_out: "Sign out"
+      person: "Me"
+      profile: "My page"
+      settings: "Settings"
+  work:
+    index:
+      def_select_theme: "Select theme to leave your answer"
+    display_theme:
+      select_theme: "Any theme"

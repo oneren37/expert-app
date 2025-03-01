@@ -1,8 +1,31 @@
 <header>
-  <ul>
-    <li><a href="/main/index">Main</a></li>
-    <li><a href="/main/contacts">Contacts</a></li>
-    <li><a href="/main/help">Help</a></li>
-    <li><a href="/main/about">About</a></li>
-  </ul>
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <!-- Логотип или название сайта -->
+      <a class="navbar-brand" href="#"><%= t("logo_title") %></a>
+
+      <!-- Кнопка для мобильных устройств -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Меню -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/work">Главная</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="/users">Пользователи</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="/images">Картинки</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="/values">Оценки</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 </header>

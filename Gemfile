@@ -14,6 +14,8 @@ gem "sqlite3", "~> 1.4"
 
 gem "haml-rails", "~> 2.1.0"
 
+gem 'i18n'
+
 gem "html2haml"
 
 gem 'font-awesome-rails'
@@ -26,7 +28,7 @@ gem 'rails-asset-jqueryui'
 
 gem 'kaminari'
 
-gem 'bootstrap-sass'
+gem 'bootstrap'
 
 gem 'font-awesome-sass'
 
@@ -61,7 +63,7 @@ gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
 gem "bootsnap", require: false
 
 # Use Sass to process CSS
-# gem "sassc-rails"
+gem "sassc-rails"
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
