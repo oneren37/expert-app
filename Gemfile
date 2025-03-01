@@ -99,4 +99,12 @@ group :development, :test do
   gem "binding_of_caller"
 end
 
+gem 'pg', '~> 1.5', '>= 1.5.6'
+
 gem 'will_paginate'
+
+gem 'activerecord-reset-pk-sequence'
+
+gem 'bcrypt'
+
+gem 'active_model_serializers'
