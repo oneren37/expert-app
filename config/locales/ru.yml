@@ -1,0 +1,17 @@
+ru:
+  shared:
+    header:
+      logo_title: "Experteese на Ruby_on_Rails"
+      home: "Главная"
+      help: "Помощь"
+      sign_in: "Войти"
+      sign_out: "Выйти"
+      person: "Я"
+      profile: "Моя страница"
+      settings: "Настройки"
+  work:
+    index:
+      def_select_theme: "Выберите тему чтобы оставить комментарий"
+    display_theme:
+      select_theme: "Тема не выбрана"
+  logo_title: "Experteese на RoR"

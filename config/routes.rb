@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # get 'work/index'
+  # get 'work/choose_theme'
+  # get 'work/display_theme'
   resources :themes
   resources :images
   resources :values
@@ -11,5 +14,13 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "articles#index"
-  root 'main#index'
+  root 'work#index'
+
+  resources :work, only: [:index] do
+    collection do
+      get 'next_image'
+      get 'previous_image'
+      post 'save_rating'
+    end
+  end
 end

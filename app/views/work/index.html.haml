@@ -1,0 +1,89 @@
+
+.container
+  .row
+    .col-md-3
+      %h2 Select Theme
+      = select_tag :theme, options_from_collection_for_select(@themes, :id, :name), class: 'form-control', id: 'theme-selector'
+    .col-md-9
+      %h2 Image
+      #image-container
+        - if @image
+          = image_tag @image.file, class: 'img-responsive', style: 'height:300px;'
+      %p
+        %strong Your Rating:
+        %span#user-rating
+        %strong Average Rating:
+        %span#average-rating
+      %input{type: "range", min: "0", max: "100", value: "0", class: "form-control", id: "rating-slider"}
+      %button{id: "save-rating", class: "btn btn-primary"} Save Rating
+      %button{id: "previous-image", class: "btn btn-secondary"} Previous
+      %button{id: "next-image", class: "btn btn-secondary"} Next
+
+:javascript
+  document.addEventListener('DOMContentLoaded', function() {
+    const themeSelector = document.getElementById('theme-selector');
+    const imageContainer = document.getElementById('image-container');
+    const userRating = document.getElementById('user-rating');
+    const averageRating = document.getElementById('average-rating');
+    const ratingSlider = document.getElementById('rating-slider');
+    const saveRatingButton = document.getElementById('save-rating');
+    const previousImageButton = document.getElementById('previous-image');
+    const nextImageButton = document.getElementById('next-image');
+
+    themeSelector.addEventListener('change', function() {
+      fetch(`/work?theme_id=${this.value}`, {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          imageContainer.innerHTML = `<img src="${data.image_url}" class="img-responsive" style='height:300px;'>`;
+          imageContainer.dataset.imageId = data.image_id;
+          userRating.textContent = data.user_rating || 'Not rated';
+          averageRating.textContent = data.average_rating || 'No ratings yet';
+        });
+    });
+
+    nextImageButton.addEventListener('click', function() {
+      fetch(`/work/next_image?theme_id=${themeSelector.value}&image_id=${imageContainer.dataset.imageId}`)
+        .then(response => response.json())
+        .then(data => {
+          imageContainer.innerHTML = `<img src="${data.image_url}" class="img-responsive" style='height:300px;'>`;
+          imageContainer.dataset.imageId = data.image_id;
+          userRating.textContent = data.user_rating || 'Not rated';
+          averageRating.textContent = data.average_rating || 'No ratings yet';
+        });
+    });
+
+    previousImageButton.addEventListener('click', function() {
+      fetch(`/work/previous_image?theme_id=${themeSelector.value}&image_id=${imageContainer.dataset.imageId}`)
+        .then(response => response.json())
+        .then(data => {
+          imageContainer.innerHTML = `<img src="${data.image_url}" class="img-responsive" style='height:300px;'>`;
+          imageContainer.dataset.imageId = data.image_id;
+          userRating.textContent = data.user_rating || 'Not rated';
+          averageRating.textContent = data.average_rating || 'No ratings yet';
+        });
+    });
+
+    saveRatingButton.addEventListener('click', function() {
+      fetch('/work/save_rating', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          image_id: imageContainer.dataset.imageId,
+          value: ratingSlider.value
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        userRating.textContent = data.user_rating;
+        averageRating.textContent = data.average_rating;
+      });
+    });
+  });
