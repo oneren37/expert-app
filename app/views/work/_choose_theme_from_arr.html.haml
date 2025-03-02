@@ -1,2 +1,7 @@
-%button.button__left.theme
-  = link_to 'Select theme', choose_theme_path, :title => "Select theme from your device folder", locale: @current_locale, :format => "js", remote: true
+.form_select
+  = form_tag("/display_theme", remote: true, format: "js") do
+    = select_tag :theme,
+     options_for_select(@themes, selected: @selected_theme),
+     include_blank: '-----',
+     onchange: "$(this).parent('form').submit();",
+     formats: [ :js ]

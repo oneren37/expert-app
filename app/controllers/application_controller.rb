@@ -1,10 +1,15 @@
 class ApplicationController < ActionController::Base
+  def index
+    @image_data =
+      render :template => "layouts/application"
+  end
+
   before_action :set_locale
 
   def extr_locale_in_accept_lang
     locale = params[:locale]
     logger.info "In extr_locale_in_accept_lang: locale =
- #{locale}"
+   #{locale}"
   end
 
   private
@@ -16,8 +21,7 @@ class ApplicationController < ActionController::Base
         I18n.locale = params[:locale]
         logger.info flash.now[:notice]
       else
-        flash.now[:alarm] = " #{params[:locale]} Перевод
- страницы отсутствует"
+        flash.now[:alarm] = " #{params[:locale]} Перевод страницы отсутствует"
         logger.error flash.now[:alarm]
       end
       params[:locale]
@@ -26,7 +30,7 @@ class ApplicationController < ActionController::Base
 
   def set_locale
     I18n.locale = set_locale_from_params || I18n.default_locale
-    Rails.application.routes.default_url_options[:locale]= I18n.locale
+    Rails.application.routes.default_url_options[:locale] = I18n.locale
   end
 
 end
