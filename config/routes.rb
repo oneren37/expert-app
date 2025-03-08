@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
-  get 'work/index'
-  get 'work/choose_theme'
-  get 'work/display_theme'
+  # get 'work/index'
+  # get 'work/choose_theme'
+  # get 'work/display_theme'
   resources :themes
   resources :images
   resources :values
@@ -16,9 +16,11 @@ Rails.application.routes.draw do
   # root "articles#index"
   root 'work#index'
 
-  # work
-  match 'work',                   to: 'work#index',                   via: 'get'
-  match 'choose_theme',           to: 'work#choose_theme',            via: :get
-  match 'display_theme',          to: 'work#display_theme',           via: :post
-
+  resources :work, only: [:index] do
+    collection do
+      get 'next_image'
+      get 'previous_image'
+      post 'save_rating'
+    end
+  end
 end

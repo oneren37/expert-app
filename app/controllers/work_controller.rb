@@ -1,79 +1,67 @@
 class WorkController < ApplicationController
-  require 'json'
-  include WorkImage
-  include WorkHelper
-
-  skip_before_action :verify_authenticity_token
+  before_action :set_theme, only: [:index, :next_image, :previous_image]
+  before_action :set_image, only: [:index, :next_image, :previous_image]
 
   def index
-    @images_count = Image.all.count
-    # @selected_theme = "Select theme to leave your answer"
-    @selected_theme = t(".def_select_theme")
-    @selected_image_name = 'Мурзик'
-    @values_qty = Value.all.count
-    @current_locale = I18n.locale
-    session[:selected_theme_id] = @selected_theme # to display nothing
-    @themes = Theme.all.pluck(:name)
-    @default_image_name = 'assets/pictures/0.jpg'
-
-    session[:selected_theme_id] = @selected_theme
-  end
-
-  def choose_theme
-    @themes = Theme.all.pluck(:name)
-    logger.info "In WorkController#choose_theme @themes = #{@themes}"
-    respond_to :js
-  end
-
-  def display_theme
-    logger.info "In work#display_theme"
-    @image_data = {}
-    I18n.locale = session[:current_locale]
-
-    current_user_id = current_user.id
-    if params[:theme] == "-----"
-      # theme = "Select theme to leave your answer"
-      theme = t(".select_theme")
-      theme_id = 1
-      values_qty = Value.all.count.round
-      data = { index: 0, name: 'Мурзик', values_qty: values_qty,
-               file: '0.jpg', image_id: 1,
-               current_user_id: current_user_id, user_valued: false,
-               common_ave_value: 0, value: 0, theme_id: theme_id }
-    else
-      theme = params[:theme]
-      theme_id = Theme.find_theme_id(theme)
-      data = show_image(theme_id, 0)
-    end
-    session[:selected_theme_id] = theme_id
-    image_data(theme, data)
-  end
-
-  def results_list
-    helpers = ActionController::Base.helpers
-    images = Image.all
-    image_stats = []
-
-    images.each do |image|
-      rated_by_user = Value.where(image_id: image.id, user_id: current_user.id).size != 0
-      if rated_by_user
-        user_value = Value.where(image_id: image.id, user_id: current_user.id)[0].value
-        image_stats.push({
-                           id: image.id,
-                           theme: Theme.where(id: image.theme_id)[0].name,
-                           imageAvgValue: Value.where(image_id: image.id).average(:value).to_f,
-                           userValue: user_value,
-                           name: image.name,
-                           file: helpers.image_path(image.file),
-                           created_at: image.created_at
-                         })
-      else
-      end
-    end
+    @themes = Theme.all
+    @image = @theme.images.first if @theme
 
     respond_to do |format|
-      format.html { render :results_list }
-      format.json { render json: image_stats }
+      format.html
+      format.json do
+        render json: {
+          image_url: ActionController::Base.helpers.asset_path(@image.file),
+          image_id: @image.id,
+          # TODO handle user
+          user_rating: @image.values.find_by(user_id: 1)&.value,
+          average_rating: @image.ave_value
+        }
+      end
     end
+  end
+
+  def next_image
+    @image = @theme.images.where('id > ?', @image.id).first || @theme.images.first
+    render json: {
+      image_url: ActionController::Base.helpers.asset_path(@image.file),
+      image_id: @image.id,
+      # TODO handle user
+      user_rating: @image.values.find_by(user_id: 1)&.value,
+      average_rating: @image.ave_value
+    }
+  end
+
+  def previous_image
+    @image = @theme.images.where('id < ?', @image.id).last || @theme.images.last
+    render json: {
+      image_url: ActionController::Base.helpers.asset_path(@image.file),
+      image_id: @image.id,
+      # TODO handle user
+      user_rating: @image.values.find_by(user_id: 1)&.value,
+      average_rating: @image.ave_value
+    }
+  end
+
+  def save_rating
+    @image = Image.find(params[:image_id])
+    # @value = @image.values.find_or_initialize_by(user_id: current_user.id)
+    @value = @image.values.find_or_initialize_by(user_id: 1)
+    @value.value = params[:value]
+    if @value.save
+      @image.update(ave_value: @image.values.average(:value))
+      render json: { user_rating: @value.value, average_rating: @image.ave_value }
+    else
+      render json: { error: 'Failed to save rating' }, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def set_theme
+    @theme = Theme.find_by(id: params[:theme_id])
+  end
+
+  def set_image
+    @image = @theme.images.find_by(id: params[:image_id]) if @theme
   end
 end

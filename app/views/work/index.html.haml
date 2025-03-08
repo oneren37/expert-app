@@ -1,65 +1,89 @@
-.row.bloc
-  .col-md-12
-    .preamble
-      %h2 Review this images from 5 to 100
-  .col-md-8
-    .image_display
-      .row.image
-        .col-md-12
-          .img-center{:title => "Default image"}
-            %img{:alt => "Default Image", :src => @default_image_name, :title => "Default image", :style => "width:100%; height:100%;" }
-          .image_user_value{:title => "Expert value"}
 
-        .col-md-6
-          .img-left-side
-            %h3{:title => "list to previous image"}
-              -# %button.fa.fa-chevron-circle-left.strong
-              %button.btn.btn-default{type: "submit", name: "submission" } Previous image
+.container
+  .row
+    .col-md-3
+      %h2 Select Theme
+      = select_tag :theme, options_from_collection_for_select(@themes, :id, :name), class: 'form-control', id: 'theme-selector'
+    .col-md-9
+      %h2 Image
+      #image-container
+        - if @image
+          = image_tag @image.file, class: 'img-responsive', style: 'height:300px;'
+      %p
+        %strong Your Rating:
+        %span#user-rating
+        %strong Average Rating:
+        %span#average-rating
+      %input{type: "range", min: "0", max: "100", value: "0", class: "form-control", id: "rating-slider"}
+      %button{id: "save-rating", class: "btn btn-primary"} Save Rating
+      %button{id: "previous-image", class: "btn btn-secondary"} Previous
+      %button{id: "next-image", class: "btn btn-secondary"} Next
 
-        .col-md-6
-          .img-right-side
-            %h3{:title => "list to next image"}
-              -# %button.fa.fa-chevron-circle-right
-              %button.btn.btn-default{type: "submit", name: "submission" } Next image
+:javascript
+  document.addEventListener('DOMContentLoaded', function() {
+    const themeSelector = document.getElementById('theme-selector');
+    const imageContainer = document.getElementById('image-container');
+    const userRating = document.getElementById('user-rating');
+    const averageRating = document.getElementById('average-rating');
+    const ratingSlider = document.getElementById('rating-slider');
+    const saveRatingButton = document.getElementById('save-rating');
+    const previousImageButton = document.getElementById('previous-image');
+    const nextImageButton = document.getElementById('next-image');
 
-  .col-md-4
-    .col-md-12
-      %h2.up-theme{:title => "theme_name"} #{@selected_theme}
+    themeSelector.addEventListener('change', function() {
+      fetch(`/work?theme_id=${this.value}`, {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          imageContainer.innerHTML = `<img src="${data.image_url}" class="img-responsive" style='height:300px;'>`;
+          imageContainer.dataset.imageId = data.image_id;
+          userRating.textContent = data.user_rating || 'Not rated';
+          averageRating.textContent = data.average_rating || 'No ratings yet';
+        });
+    });
 
-    .left_controls
-      .select_theme
-        = render 'work/button_theme_select'
+    nextImageButton.addEventListener('click', function() {
+      fetch(`/work/next_image?theme_id=${themeSelector.value}&image_id=${imageContainer.dataset.imageId}`)
+        .then(response => response.json())
+        .then(data => {
+          imageContainer.innerHTML = `<img src="${data.image_url}" class="img-responsive" style='height:300px;'>`;
+          imageContainer.dataset.imageId = data.image_id;
+          userRating.textContent = data.user_rating || 'Not rated';
+          averageRating.textContent = data.average_rating || 'No ratings yet';
+        });
+    });
 
-    .col-md-12
-      %h2.up{:title => "Image file name"} #{@selected_image_name}
+    previousImageButton.addEventListener('click', function() {
+      fetch(`/work/previous_image?theme_id=${themeSelector.value}&image_id=${imageContainer.dataset.imageId}`)
+        .then(response => response.json())
+        .then(data => {
+          imageContainer.innerHTML = `<img src="${data.image_url}" class="img-responsive" style='height:300px;'>`;
+          imageContainer.dataset.imageId = data.image_id;
+          userRating.textContent = data.user_rating || 'Not rated';
+          averageRating.textContent = data.average_rating || 'No ratings yet';
+        });
+    });
 
-    .col-md-12
-      %span.user_value{:style => "display: none"}
-        = "User value"
-        %h2.value{:title => "User value"}
-
-      %span.common_value{:style => "display: none"}
-        = "Common value"
-        %h2.common{:title => "Common value"}
-      %span.total_values
-        = "Total values"
-        %h2.total{:title => "Total values"} #{@values_qty.round}
-
-    .image_diag
-      .value_block
-        %h2.down#chosen_value{:title => "Value scale"} Set value: 50
-
-      .row.percentage
-        .col-md-6
-          %p.left 5%
-        .col-md-6
-          %p.right 100%
-
-      #slider
-        %input.slide#slide{:max => "100", :min => "5", :value => "50",
-                         :onchange => "updateValue(this.value)",
-                         :step => "5", :type => "range"}
-      %br
-
-      %button.btn.button_save{:title => "Save image diag results"}
-        %a{"data-remote" => "true", :format => "js", :href => "#", :title => "Save image diag results"} Save value
+    saveRatingButton.addEventListener('click', function() {
+      fetch('/work/save_rating', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          image_id: imageContainer.dataset.imageId,
+          value: ratingSlider.value
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        userRating.textContent = data.user_rating;
+        averageRating.textContent = data.average_rating;
+      });
+    });
+  });
