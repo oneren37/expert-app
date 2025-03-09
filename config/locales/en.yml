@@ -42,11 +42,22 @@ en:
       person: "Me"
       profile: "My page"
       settings: "Settings"
+      main_page: "Main"
+      users: "Users"
+      images: "Images"
+      ratings: "Ratings"
+  logo_title: "Experteese by RoR"
   work:
     index:
       def_select_theme: "Select theme to leave your answer"
-    display_theme:
-      select_theme: "Any theme"
+      select_theme: "Select Theme"
+      your_rating: "Your Rating"
+      not_rated: "Not rated"
+      average_rating: "Average Rating"
+      image: "Image"
+      next: "Next"
+      prev: "Previous"
+      save: "Save rating"
   sessions:
     new:
       sign_in: "Sign in"
