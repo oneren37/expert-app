@@ -8,12 +8,14 @@
       %h2 Image
       #image-container
         - if @image
-          = image_tag @image.file, class: 'img-responsive', style: 'height:300px;'
+          = image_tag @image.file, id: "image", class: 'img-responsive', style: 'height:300px;', data: { id: @image.id }
       %p
         %strong Your Rating:
         %span#user-rating
+          = @user_rating || 'Not rated'
         %strong Average Rating:
         %span#average-rating
+          = @average_rating || 'Not rated'
       %input{type: "range", min: "0", max: "100", value: "0", class: "form-control", id: "rating-slider"}
       %button{id: "save-rating", class: "btn btn-primary"} Save Rating
       %button{id: "previous-image", class: "btn btn-secondary"} Previous
@@ -23,6 +25,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     const themeSelector = document.getElementById('theme-selector');
     const imageContainer = document.getElementById('image-container');
+    const image = document.getElementById('image');
     const userRating = document.getElementById('user-rating');
     const averageRating = document.getElementById('average-rating');
     const ratingSlider = document.getElementById('rating-slider');
@@ -39,30 +42,30 @@
       })
         .then(response => response.json())
         .then(data => {
-          imageContainer.innerHTML = `<img src="${data.image_url}" class="img-responsive" style='height:300px;'>`;
-          imageContainer.dataset.imageId = data.image_id;
+          imageContainer.innerHTML = `<img src="${data.image_url}" id="image" class="img-responsive" style='height:300px;'>`;
+          image.dataset.id = data.image_id;
           userRating.textContent = data.user_rating || 'Not rated';
           averageRating.textContent = data.average_rating || 'No ratings yet';
         });
     });
 
     nextImageButton.addEventListener('click', function() {
-      fetch(`/work/next_image?theme_id=${themeSelector.value}&image_id=${imageContainer.dataset.imageId}`)
+      fetch(`/work/next_image?theme_id=${themeSelector.value}&image_id=${image.dataset.id}`)
         .then(response => response.json())
         .then(data => {
-          imageContainer.innerHTML = `<img src="${data.image_url}" class="img-responsive" style='height:300px;'>`;
-          imageContainer.dataset.imageId = data.image_id;
+          imageContainer.innerHTML = `<img src="${data.image_url}" id="image" class="img-responsive" style='height:300px;'>`;
+          image.dataset.id = data.image_id;
           userRating.textContent = data.user_rating || 'Not rated';
           averageRating.textContent = data.average_rating || 'No ratings yet';
         });
     });
 
     previousImageButton.addEventListener('click', function() {
-      fetch(`/work/previous_image?theme_id=${themeSelector.value}&image_id=${imageContainer.dataset.imageId}`)
+      fetch(`/work/previous_image?theme_id=${themeSelector.value}&image_id=${image.dataset.id}`)
         .then(response => response.json())
         .then(data => {
-          imageContainer.innerHTML = `<img src="${data.image_url}" class="img-responsive" style='height:300px;'>`;
-          imageContainer.dataset.imageId = data.image_id;
+          imageContainer.innerHTML = `<img src="${data.image_url}" id="image" class="img-responsive" style='height:300px;'>`;
+          image.dataset.id = data.image_id;
           userRating.textContent = data.user_rating || 'Not rated';
           averageRating.textContent = data.average_rating || 'No ratings yet';
         });
@@ -76,7 +79,7 @@
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
         },
         body: JSON.stringify({
-          image_id: imageContainer.dataset.imageId,
+          image_id: image.dataset.id,
           value: ratingSlider.value
         })
       })

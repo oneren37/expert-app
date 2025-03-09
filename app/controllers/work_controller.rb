@@ -4,7 +4,12 @@ class WorkController < ApplicationController
 
   def index
     @themes = Theme.all
-    @image = @theme.images.first if @theme
+    unless @theme
+      @theme = Theme.first
+    end
+    @image = @theme.images.first
+    @user_rating = @image.values.find_by(user_id: current_user.id)&.value
+    @average_rating = @image.ave_value
 
     respond_to do |format|
       format.html
@@ -12,8 +17,7 @@ class WorkController < ApplicationController
         render json: {
           image_url: ActionController::Base.helpers.asset_path(@image.file),
           image_id: @image.id,
-          # TODO handle user
-          user_rating: @image.values.find_by(user_id: 1)&.value,
+          user_rating: @image.values.find_by(user_id: current_user.id)&.value,
           average_rating: @image.ave_value
         }
       end
@@ -25,8 +29,7 @@ class WorkController < ApplicationController
     render json: {
       image_url: ActionController::Base.helpers.asset_path(@image.file),
       image_id: @image.id,
-      # TODO handle user
-      user_rating: @image.values.find_by(user_id: 1)&.value,
+      user_rating: @image.values.find_by(user_id: current_user.id)&.value,
       average_rating: @image.ave_value
     }
   end
@@ -36,16 +39,14 @@ class WorkController < ApplicationController
     render json: {
       image_url: ActionController::Base.helpers.asset_path(@image.file),
       image_id: @image.id,
-      # TODO handle user
-      user_rating: @image.values.find_by(user_id: 1)&.value,
+      user_rating: @image.values.find_by(user_id: current_user.id)&.value,
       average_rating: @image.ave_value
     }
   end
 
   def save_rating
     @image = Image.find(params[:image_id])
-    # @value = @image.values.find_or_initialize_by(user_id: current_user.id)
-    @value = @image.values.find_or_initialize_by(user_id: 1)
+    @value = @image.values.find_or_initialize_by(user_id: current_user.id)
     @value.value = params[:value]
     if @value.save
       @image.update(ave_value: @image.values.average(:value))

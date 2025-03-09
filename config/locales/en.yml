@@ -38,6 +38,7 @@ en:
       help: "Help"
       sign_in: "Sign in"
       sign_out: "Sign out"
+      sign_up: "Sign up"
       person: "Me"
       profile: "My page"
       settings: "Settings"
@@ -46,3 +47,12 @@ en:
       def_select_theme: "Select theme to leave your answer"
     display_theme:
       select_theme: "Any theme"
+  sessions:
+    new:
+      sign_in: "Sign in"
+      sign_out: "Sign out"
+      sign_up: "Sign up"
+  users:
+    form:
+      create_account: "Create account"
+

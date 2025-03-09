@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :images
   resources :values
   resources :users
+  resources :sessions
   get 'main/index'
   get 'main/help'
   get 'main/contacts'
@@ -14,7 +15,12 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "articles#index"
-  root 'work#index'
+  root 'main#index'
+  match 'work', to: 'work#index', via: :get
+  match 'signup',   to: 'users#new',            via: 'get'
+  match 'signin',   to: 'sessions#new',         via: 'get'
+  match 'signout',  to: 'sessions#destroy',     via: 'get'
+
 
   resources :work, only: [:index] do
     collection do

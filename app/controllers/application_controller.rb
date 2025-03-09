@@ -1,5 +1,8 @@
+include SessionsHelper
+
 class ApplicationController < ActionController::Base
   before_action :set_locale
+  before_action :redirect_to_login_unless_authenticated
 
   def extr_locale_in_accept_lang
     locale = params[:locale]
@@ -29,4 +32,14 @@ class ApplicationController < ActionController::Base
     Rails.application.routes.default_url_options[:locale]= I18n.locale
   end
 
+
+  private
+
+  def redirect_to_login_unless_authenticated
+    return if controller_name == 'sessions' || controller_name == 'users'
+
+    unless signed_in?
+      redirect_to signin_path
+    end
+  end
 end
